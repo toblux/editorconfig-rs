@@ -1,0 +1,22 @@
+name: Run tests
+on: [push, pull_request]
+
+jobs:
+  test_macos:
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Install libeditorconfig
+        run: brew install editorconfig
+      - name: Run tests
+        run: cargo test
+  test_ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Install libeditorconfig
+        run: sudo apt-get update && sudo apt-get install libeditorconfig-dev
+      - name: Run tests
+        run: cargo test

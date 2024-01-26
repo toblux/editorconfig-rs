@@ -1,0 +1,3 @@
+root = true
+# Comments are fine
+LINE 3 IS INVALID AND SHOULD CAUSE AN ERROR

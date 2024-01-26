@@ -1,0 +1,11 @@
+name: Build docs
+on: [push, pull_request]
+
+jobs:
+  docs_ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Build documentation
+        run: cargo doc
