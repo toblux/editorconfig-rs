@@ -2,6 +2,8 @@
 
 This crate provides a safe Rust wrapper to the native `libeditorconfig` C library, using the [editorconfig-sys](https://github.com/toblux/editorconfig-sys) FFI bindings.
 
+![Workflow status](https://github.com/toblux/editorconfig-rs/actions/workflows/test.yml/badge.svg)
+
 ## Dependencies
 
 This crate uses `editorconfig-sys` which currently requires you to install `libeditorconfig`. Please refer to the [editorconfig-sys README](https://github.com/toblux/editorconfig-sys) for more information.
