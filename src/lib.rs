@@ -52,9 +52,7 @@ impl EditorConfigHandle {
     /// # Example
     ///
     /// ```
-    /// use editorconfig_rs::EditorConfigHandle;
-    ///
-    /// let handle = EditorConfigHandle::new();
+    /// let handle = editorconfig_rs::EditorConfigHandle::new();
     /// # assert!(handle.is_ok());
     /// ```
     ///
@@ -168,9 +166,7 @@ impl EditorConfigHandle {
     /// # Example
     ///
     /// ```
-    /// use editorconfig_rs::EditorConfigHandle;
-    ///
-    /// let handle = EditorConfigHandle::new().unwrap();
+    /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
     /// // Parse a file here or `get_rule_count` returns 0 instead
     /// let rule_count = handle.get_rule_count();
     /// # assert_eq!(rule_count, 0);
@@ -232,9 +228,7 @@ impl Drop for EditorConfigHandle {
 /// # Example
 ///
 /// ```
-/// use editorconfig_rs::ParseError;
-///
-/// let parse_err = ParseError::LineError(23);
+/// let parse_err = editorconfig_rs::ParseError::LineError(23);
 /// if let Some(err_msg) = editorconfig_rs::get_error_message(parse_err) {
 ///     println!("Error parsing .editorconfig at line 23: {}", err_msg);
 /// }
@@ -264,9 +258,7 @@ pub fn get_error_message(parse_error: ParseError) -> Option<String> {
 /// # Example
 ///
 /// ```
-/// use editorconfig_rs::Version;
-///
-/// let Version{major, minor, patch} = editorconfig_rs::get_version();
+/// let editorconfig_rs::Version{major, minor, patch} = editorconfig_rs::get_version();
 /// # assert!(major >= 0);
 /// # assert!(minor >= 12);
 /// # assert!(patch >= 5);
