@@ -119,7 +119,7 @@ impl EditorConfigHandle {
 
     /// TODO: Add comment
     pub fn set_config_filename(&mut self, filename: &str) {
-        let err_msg = format!("Failed to create CString from {}", filename);
+        let err_msg = format!("Failed to create CString from filename: {}", filename);
         let filename = CString::new(filename).expect(&err_msg);
         unsafe {
             editorconfig_sys::editorconfig_handle_set_conf_file_name(
@@ -135,7 +135,7 @@ impl EditorConfigHandle {
     /// TODO: Add comment
     pub fn parse<P: AsRef<Path>>(&self, absolute_path: P) -> Option<ParseError> {
         let absolute_path = absolute_path.as_ref().to_str().expect("Invalid UTF-8 path");
-        let err_msg = format!("Failed to create CString from {}", absolute_path);
+        let err_msg = format!("Failed to create CString from path: {}", absolute_path);
         let absolute_path = CString::new(absolute_path).expect(&err_msg);
 
         let err_num =
