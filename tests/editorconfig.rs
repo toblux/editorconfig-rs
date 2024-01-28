@@ -80,6 +80,18 @@ fn parse_config_file_and_get_rules_for_rust_file() {
 }
 
 #[test]
+fn parse_emoji_path() {
+  let emoji_test_path = fs::canonicalize("tests/🦀🚀").unwrap();
+
+  let handle = EditorConfigHandle::new().unwrap();
+  let err = handle.parse(emoji_test_path);
+  assert!(err.is_none());
+
+  let rules = handle.get_rules();
+  assert_eq!(rules.len(), 2);
+}
+
+#[test]
 fn no_parse_get_rules() {
     let handle = EditorConfigHandle::new().unwrap();
     let rules = handle.get_rules();
