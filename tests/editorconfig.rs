@@ -193,7 +193,7 @@ fn get_error_file() {
     assert_eq!(err_line_num, 3);
 
     let err_file_path = handle.get_error_file_path().unwrap();
-    assert_eq!(err_file_path, invalid_config_file_path.to_str().unwrap());
+    assert_eq!(err_file_path, invalid_config_file_path);
 }
 
 #[test]

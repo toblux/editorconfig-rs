@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     ffi::{CStr, CString},
     os::raw::c_void,
-    path::Path,
+    path::{Path, PathBuf},
     ptr,
 };
 
@@ -148,16 +148,24 @@ impl EditorConfigHandle {
         }
     }
 
-    /// TODO: Add comment
-    pub fn get_error_file_path(&self) -> Option<String> {
+    /// Returns the path of the erroneous config file
+    ///
+    /// When [`EditorConfigHandle::parse`] returns a [`ParseError`], use this
+    /// method to determine the path of the erroneous config file.
+    ///
+    /// # Returns
+    ///
+    /// A [`PathBuf`] with the path of the erroneous config file or [`None`] if
+    /// there was no error
+    ///
+    pub fn get_error_file_path(&self) -> Option<PathBuf> {
         let err_file_path =
             unsafe { editorconfig_sys::editorconfig_handle_get_err_file(self.handle) };
         if err_file_path.is_null() {
             None
         } else {
             let err_file_path = unsafe { CStr::from_ptr(err_file_path) };
-            let err_file_path = err_file_path.to_str().map(|s| s.to_owned());
-            err_file_path.ok()
+            err_file_path.to_str().map(|p| PathBuf::from(p)).ok()
         }
     }
 
