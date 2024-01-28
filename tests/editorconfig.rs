@@ -87,6 +87,9 @@ fn parse_emoji_path() {
     let err = handle.parse(emoji_test_path);
     assert!(err.is_none());
 
+    let rule_count = handle.get_rule_count();
+    assert_eq!(rule_count, 2);
+
     let rules = handle.get_rules();
     assert_eq!(rules.len(), 2);
 }
