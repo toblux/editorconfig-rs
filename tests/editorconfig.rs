@@ -71,8 +71,8 @@ fn parse_config_file_and_get_rules_for_rust_file() {
     let test_file_path = fs::canonicalize(file!()).unwrap();
 
     let handle = EditorConfigHandle::new().unwrap();
-    let error = handle.parse(test_file_path);
-    assert!(error.is_none());
+    let err = handle.parse(test_file_path);
+    assert!(err.is_none());
 
     let rules = handle.get_rules();
     assert_eq!(rules.len(), rs_file_rules.len());
@@ -89,8 +89,8 @@ fn no_parse_get_rules() {
 #[test]
 fn relative_file_path_error() {
     let handle = EditorConfigHandle::new().unwrap();
-    let error = handle.parse(file!()).unwrap();
-    assert_eq!(error, ParseError::NotFullPathError);
+    let err = handle.parse(file!()).unwrap();
+    assert_eq!(err, ParseError::NotFullPathError);
 }
 
 #[test]
@@ -105,8 +105,8 @@ fn version_too_new_error() {
     let handle = EditorConfigHandle::new().unwrap();
     handle.set_version(version);
 
-    let error = handle.parse(test_file_path).unwrap();
-    assert_eq!(error, ParseError::VersionTooNewError);
+    let err = handle.parse(test_file_path).unwrap();
+    assert_eq!(err, ParseError::VersionTooNewError);
 }
 
 #[test]
