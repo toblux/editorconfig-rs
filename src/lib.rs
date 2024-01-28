@@ -158,7 +158,7 @@ impl EditorConfigHandle {
     /// A [`PathBuf`] with the path of the erroneous config file or [`None`] if
     /// there was no error
     ///
-    pub fn get_error_file_path(&self) -> Option<PathBuf> {
+    pub fn get_error_file(&self) -> Option<PathBuf> {
         let err_file_path =
             unsafe { editorconfig_sys::editorconfig_handle_get_err_file(self.handle) };
         if err_file_path.is_null() {

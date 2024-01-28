@@ -179,7 +179,7 @@ fn get_error_file() {
     assert!(err.is_none());
 
     // No error, no error file
-    let err_file_path = handle.get_error_file_path();
+    let err_file_path = handle.get_error_file();
     assert!(err_file_path.is_none());
 
     // Set invalid config filename
@@ -192,7 +192,7 @@ fn get_error_file() {
     };
     assert_eq!(err_line_num, 3);
 
-    let err_file_path = handle.get_error_file_path().unwrap();
+    let err_file_path = handle.get_error_file().unwrap();
     assert_eq!(err_file_path, invalid_config_file_path);
 }
 
