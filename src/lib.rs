@@ -114,7 +114,11 @@ impl EditorConfigHandle {
         };
     }
 
-    /// TODO: Add comment
+    /// Returns the configuration filename iff it was previously set by calling
+    /// [`EditorConfigHandle::set_config_filename`]; otherwise [`None`]
+    ///
+    /// Note: [`None`] just means the default filename `".editorconfig"` is used
+    ///
     pub fn get_config_filename(&self) -> Option<String> {
         let filename =
             unsafe { editorconfig_sys::editorconfig_handle_get_conf_file_name(self.handle) };
@@ -127,7 +131,8 @@ impl EditorConfigHandle {
         }
     }
 
-    /// TODO: Add comment
+    /// Changes the default EditorConfig configuration filename
+    ///
     pub fn set_config_filename(&mut self, filename: &str) {
         let err_msg = format!("Failed to create CString from filename: {}", filename);
         let filename = CString::new(filename).expect(&err_msg);
@@ -142,7 +147,11 @@ impl EditorConfigHandle {
         self.config_filename = Some(filename);
     }
 
-    /// TODO: Add comment
+    /// Searches an absolute path for the corresponding EditorConfig rules
+    ///
+    /// After parsing, you can get the rules by calling
+    /// [`EditorConfigHandle::get_rules`].
+    ///
     pub fn parse<P: AsRef<Path>>(&self, absolute_path: P) -> Option<ParseError> {
         let absolute_path = absolute_path.as_ref().to_str().expect("Invalid UTF-8 path");
         let err_msg = format!("Failed to create CString from path: {}", absolute_path);
@@ -160,14 +169,12 @@ impl EditorConfigHandle {
         }
     }
 
-    /// Returns the path of the erroneous config file
-    ///
-    /// When [`EditorConfigHandle::parse`] returns a [`ParseError`], use this
-    /// method to determine the path of the erroneous config file.
+    /// Returns the [path](PathBuf) of the invalid configuration file when
+    /// [parse](EditorConfigHandle::parse) returned an [error](ParseError)
     ///
     /// # Returns
     ///
-    /// A [`PathBuf`] with the path of the erroneous config file or [`None`] if
+    /// The [path](PathBuf) of the invalid configuration file or [`None`] if
     /// there was no error
     ///
     pub fn get_error_file(&self) -> Option<PathBuf> {
@@ -181,13 +188,13 @@ impl EditorConfigHandle {
         }
     }
 
-    /// Returns the number of rules found after parsing the config file
+    /// Returns the number of rules found after parsing
     ///
     /// # Example
     ///
     /// ```
     /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
-    /// // Parse a file here or `get_rule_count` returns 0 instead
+    /// // Parse a file or a directory; otherwise `get_rule_count()` returns 0
     /// let rule_count = handle.get_rule_count();
     /// # assert_eq!(rule_count, 0);
     /// ```
@@ -196,7 +203,8 @@ impl EditorConfigHandle {
         unsafe { editorconfig_sys::editorconfig_handle_get_name_value_count(self.handle) }
     }
 
-    /// TODO: Add comment
+    /// Returns a map of all rules found after parsing
+    ///
     pub fn get_rules(&self) -> HashMap<String, String> {
         let rule_count = self.get_rule_count();
         let mut rules = HashMap::with_capacity(rule_count as usize);
@@ -241,12 +249,15 @@ impl Drop for EditorConfigHandle {
     }
 }
 
-/// Gets the error message for a [`ParseError`] from the underlying libeditorconfig C library
+/// Gets the error message for a [parsing error](ParseError) from the
+/// underlying `libeditorconfig` C library
 ///
 /// # Example
 ///
 /// ```
-/// let parse_err = editorconfig_rs::ParseError::LineError(23);
+/// use editorconfig_rs::ParseError;
+///
+/// let parse_err = ParseError::LineError(23);
 /// if let Some(err_msg) = editorconfig_rs::get_error_message(parse_err) {
 ///     println!("Error parsing .editorconfig at line 23: {}", err_msg);
 /// }
@@ -271,12 +282,14 @@ pub fn get_error_message(parse_error: ParseError) -> Option<String> {
     }
 }
 
-/// Gets the [`Version`] number of the underlying libeditorconfig C library
+/// Gets the [version](Version) number of the underlying `libeditorconfig` C library
 ///
 /// # Example
 ///
 /// ```
-/// let editorconfig_rs::Version{major, minor, patch} = editorconfig_rs::get_version();
+/// use editorconfig_rs::Version;
+///
+/// let Version{major, minor, patch} = editorconfig_rs::get_version();
 /// # assert!(major >= 0);
 /// # assert!(minor >= 12);
 /// # assert!(patch >= 5);
