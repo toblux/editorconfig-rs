@@ -188,9 +188,10 @@ impl EditorConfigHandle {
     pub fn get_rules(&self) -> HashMap<String, String> {
         let rule_count = self.get_rule_count();
         let mut rules = HashMap::with_capacity(rule_count.into());
-        let (mut rule_name, mut rule_value) = (ptr::null(), ptr::null());
 
         for rule_index in 0..rule_count {
+            let (mut rule_name, mut rule_value) = (ptr::null(), ptr::null());
+
             unsafe {
                 editorconfig_sys::editorconfig_handle_get_name_value(
                     self.handle,
@@ -214,9 +215,6 @@ impl EditorConfigHandle {
             ) {
                 rules.insert(rule_name, rule_value);
             }
-
-            rule_name = ptr::null();
-            rule_value = ptr::null();
         }
 
         rules
