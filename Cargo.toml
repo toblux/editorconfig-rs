@@ -1,6 +1,6 @@
 [package]
 name = "editorconfig-rs"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Thorsten Blum <thorsten.blum@toblux.com>"]
 homepage = "https://github.com/toblux/editorconfig-rs"
