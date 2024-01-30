@@ -4,7 +4,7 @@
 use std::{
     collections::HashMap,
     ffi::{CStr, CString},
-    os::raw::c_void,
+    os::raw::{c_int, c_void},
     path::{Path, PathBuf},
     ptr,
 };
@@ -21,18 +21,36 @@ pub struct EditorConfigHandle {
 }
 
 /// EditorConfig version
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Version {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Version<T: Into<c_int>> {
     /// Major version number
-    pub major: i32,
+    pub major: T,
     /// Minor version number
-    pub minor: i32,
+    pub minor: T,
     /// Patch version number
-    pub patch: i32,
+    pub patch: T,
 }
 
-/// Errors returned by [`EditorConfigHandle::parse`]
-#[derive(Debug, PartialEq)]
+impl<T: Into<c_int> + Copy> Version<T> {
+    /// Safe [`Version`] constructor that panics when negative numbers are used
+    pub fn new(major: T, minor: T, patch: T) -> Self {
+        if c_int::is_negative(major.into())
+            || c_int::is_negative(minor.into())
+            || c_int::is_negative(patch.into())
+        {
+            panic!("Version numbers cannot be negative");
+        }
+
+        Version {
+            major,
+            minor,
+            patch,
+        }
+    }
+}
+
+/// Parsing errors returned by [`EditorConfigHandle::parse`]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParseError {
     /// TODO: Add comment
     VersionTooNewError,
@@ -43,7 +61,7 @@ pub enum ParseError {
     NotFullPathError,
     /// [`EditorConfigHandle::parse`] returns this error if your config file is
     /// invalid including the line number where the error occured
-    LineError(i32),
+    LineError(c_int),
 }
 
 impl EditorConfigHandle {
@@ -69,10 +87,8 @@ impl EditorConfigHandle {
     }
 
     /// TODO: Add comment
-    pub fn get_version(&self) -> Version {
-        let mut major = -1;
-        let mut minor = -1;
-        let mut patch = -1;
+    pub fn get_version(&self) -> Version<c_int> {
+        let (mut major, mut minor, mut patch) = (-1, -1, -1);
 
         unsafe {
             editorconfig_sys::editorconfig_handle_get_version(
@@ -83,21 +99,17 @@ impl EditorConfigHandle {
             );
         }
 
-        Version {
-            major,
-            minor,
-            patch,
-        }
+        Version::new(major, minor, patch)
     }
 
     /// TODO: Add comment
-    pub fn set_version(&self, version: Version) {
+    pub fn set_version<T: Into<c_int>>(&self, version: Version<T>) {
         unsafe {
             editorconfig_sys::editorconfig_handle_set_version(
                 self.handle,
-                version.major,
-                version.minor,
-                version.patch,
+                version.major.into(),
+                version.minor.into(),
+                version.patch.into(),
             );
         };
     }
@@ -165,7 +177,7 @@ impl EditorConfigHandle {
             None
         } else {
             let err_file_path = unsafe { CStr::from_ptr(err_file_path) };
-            err_file_path.to_str().map(|p| PathBuf::from(p)).ok()
+            err_file_path.to_str().map(PathBuf::from).ok()
         }
     }
 
@@ -180,14 +192,14 @@ impl EditorConfigHandle {
     /// # assert_eq!(rule_count, 0);
     /// ```
     ///
-    pub fn get_rule_count(&self) -> u16 {
-        unsafe { editorconfig_sys::editorconfig_handle_get_name_value_count(self.handle) as u16 }
+    pub fn get_rule_count(&self) -> c_int {
+        unsafe { editorconfig_sys::editorconfig_handle_get_name_value_count(self.handle) }
     }
 
     /// TODO: Add comment
     pub fn get_rules(&self) -> HashMap<String, String> {
         let rule_count = self.get_rule_count();
-        let mut rules = HashMap::with_capacity(rule_count.into());
+        let mut rules = HashMap::with_capacity(rule_count as usize);
 
         for rule_index in 0..rule_count {
             let (mut rule_name, mut rule_value) = (ptr::null(), ptr::null());
@@ -195,7 +207,7 @@ impl EditorConfigHandle {
             unsafe {
                 editorconfig_sys::editorconfig_handle_get_name_value(
                     self.handle,
-                    rule_index.into(),
+                    rule_index,
                     &mut rule_name,
                     &mut rule_value,
                 );
@@ -270,18 +282,11 @@ pub fn get_error_message(parse_error: ParseError) -> Option<String> {
 /// # assert!(patch >= 5);
 /// ```
 ///
-pub fn get_version() -> Version {
-    let mut major = -1;
-    let mut minor = -1;
-    let mut patch = -1;
-
+pub fn get_version() -> Version<c_int> {
+    let (mut major, mut minor, mut patch) = (-1, -1, -1);
     unsafe {
         editorconfig_sys::editorconfig_get_version(&mut major, &mut minor, &mut patch);
     };
 
-    Version {
-        major,
-        minor,
-        patch,
-    }
+    Version::new(major, minor, patch)
 }

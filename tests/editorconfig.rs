@@ -1,6 +1,6 @@
 use editorconfig_rs::{EditorConfigHandle, ParseError, Version};
 use rand::Rng;
-use std::{collections::HashMap, fs, path};
+use std::{collections::HashMap, fs, os::raw::c_int, path};
 
 const DEFAULT_CONFIG_FILENAME: &str = ".editorconfig";
 
@@ -14,13 +14,7 @@ fn new_handle() {
 #[test]
 fn get_version() {
     let handle = EditorConfigHandle::new().unwrap();
-
-    let expected_version = Version {
-        major: 0,
-        minor: 0,
-        patch: 0,
-    };
-
+    let expected_version = Version::new(0, 0, 0);
     assert_eq!(handle.get_version(), expected_version);
 }
 
@@ -32,9 +26,9 @@ fn set_get_version() {
         let handle = EditorConfigHandle::new().unwrap();
 
         let version = Version {
-            major: rng.gen_range(0..1000),
-            minor: rng.gen_range(1..1000),
-            patch: rng.gen_range(0..1000),
+            major: rng.gen_range(0..c_int::MAX),
+            minor: rng.gen_range(0..c_int::MAX),
+            patch: rng.gen_range(0..c_int::MAX),
         };
 
         handle.set_version(version);
@@ -110,15 +104,11 @@ fn relative_file_path_error() {
 
 #[test]
 fn version_too_new_error() {
-    let version = Version {
-        major: i32::MAX,
-        minor: i32::MAX,
-        patch: i32::MAX,
-    };
+    let max_version = Version::new(c_int::MAX, c_int::MAX, c_int::MAX);
     let test_file_path = fs::canonicalize(file!()).unwrap();
 
     let handle = EditorConfigHandle::new().unwrap();
-    handle.set_version(version);
+    handle.set_version(max_version);
 
     let err = handle.parse(test_file_path).unwrap();
     assert_eq!(err, ParseError::VersionTooNewError);
@@ -133,6 +123,8 @@ fn get_error_message_parse_error() {
 
     let parse_err = ParseError::LineError(parse_err_line_num);
     let parse_err_msg = editorconfig_rs::get_error_message(parse_err).unwrap();
+
+    // Tight coupling to libeditorconfig's error messages could be improved
     assert_eq!(parse_err_msg, "Failed to parse file.");
 }
 
@@ -140,6 +132,8 @@ fn get_error_message_parse_error() {
 fn get_error_message_relative_path_error() {
     let relative_path_err_msg =
         editorconfig_rs::get_error_message(ParseError::NotFullPathError).unwrap();
+
+    // Tight coupling to libeditorconfig's error messages could be improved
     assert_eq!(
         relative_path_err_msg,
         "Input file must be a full path name."
@@ -149,6 +143,8 @@ fn get_error_message_relative_path_error() {
 #[test]
 fn get_error_message_memory_error() {
     let memory_err_msg = editorconfig_rs::get_error_message(ParseError::MemoryError).unwrap();
+
+    // Tight coupling to libeditorconfig's error messages could be improved
     assert_eq!(memory_err_msg, "Memory error.");
 }
 
@@ -156,6 +152,8 @@ fn get_error_message_memory_error() {
 fn get_error_message_version_error() {
     let version_err_msg =
         editorconfig_rs::get_error_message(ParseError::VersionTooNewError).unwrap();
+
+    // Tight coupling to libeditorconfig's error messages could be improved
     assert_eq!(
         version_err_msg,
         "Required version is greater than the current version."
@@ -211,14 +209,47 @@ fn get_rule_count() {
 
 #[test]
 fn lib_get_version() {
-    let Version {
-        major,
-        minor,
-        patch,
-    } = editorconfig_rs::get_version();
+    let version = editorconfig_rs::get_version();
 
     // libeditorconfig 0.12.5 is currently the minimum supported version
-    assert!(major >= 0);
-    assert!(minor >= 12);
-    assert!(patch >= 5);
+    assert!(version.major >= 0);
+    assert!(version.minor >= 12);
+    assert!(version.patch >= 5);
+}
+
+#[test]
+fn copy_clone_versions() {
+    // Testing the `Clone` and `Copy` traits
+    let mut version = Version::new(0, 1, 2);
+    let mut version_copy = version;
+    let version_clone = version.clone();
+
+    assert_eq!(version, version_copy);
+    assert_eq!(version, version_clone);
+
+    // Change the original version
+    version.major = 1;
+    assert_ne!(version, version_copy);
+    assert_ne!(version, version_clone);
+
+    // Change the copy
+    version_copy.major = 1;
+    assert_eq!(version_copy, version);
+    assert_ne!(version_copy, version_clone);
+}
+
+#[test]
+fn compare_versions() {
+    // Testing the `PartialOrd` and `PartialEq` traits
+    assert!(Version::new(0, 0, 0) == Version::new(0, 0, 0));
+    assert!(Version::new(0, 0, 0) <= Version::new(0, 0, 1));
+    assert!(Version::new(0, 0, 1) <= Version::new(0, 1, 0));
+    assert!(Version::new(0, 1, 0) <= Version::new(1, 0, 0));
+}
+
+#[test]
+#[should_panic(expected = "Version numbers cannot be negative")]
+fn safe_version() {
+    // Testing the "safe" `Version` constructor
+    Version::new(-1, -2, -3);
 }
