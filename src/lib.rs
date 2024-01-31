@@ -184,7 +184,7 @@ impl EditorConfigHandle {
     ///
     /// ```
     /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
-    /// let test_file_path = std::fs::canonicalize("tests").unwrap();
+    /// let test_file_path = std::fs::canonicalize("tests/🦀🚀").unwrap();
     /// let err = handle.parse(test_file_path);
     /// # assert!(err.is_none());
     /// ```
@@ -246,12 +246,12 @@ impl EditorConfigHandle {
     ///
     /// ```
     /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
-    /// let test_file_path = std::fs::canonicalize("tests").unwrap();
+    /// let test_file_path = std::fs::canonicalize("tests/🦀🚀").unwrap();
     /// let err = handle.parse(test_file_path);
     /// # assert!(err.is_none());
     ///
     /// let rules = handle.get_rules();
-    /// # assert_eq!(rules.len(), 3);
+    /// # assert_eq!(rules.len(), 2);
     /// ```
     ///
     pub fn get_rules(&self) -> HashMap<String, String> {
