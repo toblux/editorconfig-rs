@@ -119,7 +119,7 @@ fn get_error_message_parse_error() {
     let mut rng = rand::thread_rng();
 
     // Any error > 0 is a parsing error at that line
-    let parse_err_line_num = rng.gen_range(1..=i32::MAX);
+    let parse_err_line_num = rng.gen_range(1..=c_int::MAX);
 
     let parse_err = ParseError::LineError(parse_err_line_num);
     let parse_err_msg = editorconfig_rs::get_error_message(parse_err).unwrap();

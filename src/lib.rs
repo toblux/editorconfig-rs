@@ -91,9 +91,9 @@ impl EditorConfigHandle {
     /// # Example
     ///
     /// ```
+    /// # use editorconfig_rs::Version;
     /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
     /// let version = handle.get_version();
-    /// # use editorconfig_rs::Version;
     /// # assert_eq!(version, Version::new(0, 0, 0));
     /// ```
     ///
@@ -118,6 +118,7 @@ impl EditorConfigHandle {
     ///
     /// ```
     /// use editorconfig_rs::Version;
+    ///
     /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
     /// handle.set_version(Version::new(0, 12, 5));
     /// ```
@@ -249,7 +250,6 @@ impl EditorConfigHandle {
     /// let test_file_path = std::fs::canonicalize("tests/🦀🚀").unwrap();
     /// let err = handle.parse(test_file_path);
     /// # assert!(err.is_none());
-    ///
     /// let rules = handle.get_rules();
     /// # assert_eq!(rules.len(), 2);
     /// ```
