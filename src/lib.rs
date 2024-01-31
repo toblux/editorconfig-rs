@@ -87,6 +87,16 @@ impl EditorConfigHandle {
     }
 
     /// TODO: Add comment
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
+    /// let version = handle.get_version();
+    /// # use editorconfig_rs::Version;
+    /// # assert_eq!(version, Version::new(0, 0, 0));
+    /// ```
+    ///
     pub fn get_version(&self) -> Version<c_int> {
         let (mut major, mut minor, mut patch) = (-1, -1, -1);
 
@@ -103,6 +113,15 @@ impl EditorConfigHandle {
     }
 
     /// TODO: Add comment
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use editorconfig_rs::Version;
+    /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
+    /// handle.set_version(Version::new(0, 12, 5));
+    /// ```
+    ///
     pub fn set_version<T: Into<c_int>>(&self, version: Version<T>) {
         unsafe {
             editorconfig_sys::editorconfig_handle_set_version(
@@ -131,7 +150,16 @@ impl EditorConfigHandle {
         }
     }
 
-    /// Changes the default EditorConfig configuration filename
+    /// Sets a custom EditorConfig configuration filename
+    ///
+    /// Allows you to change the default configuration filename ".editorconfig".
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
+    /// handle.set_config_filename(".myeditorconfig")
+    /// ```
     ///
     pub fn set_config_filename(&mut self, filename: &str) {
         let err_msg = format!("Failed to create CString from filename: {}", filename);
@@ -151,6 +179,15 @@ impl EditorConfigHandle {
     ///
     /// After parsing, you can get the rules by calling
     /// [`EditorConfigHandle::get_rules`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
+    /// let test_file_path = std::fs::canonicalize("tests").unwrap();
+    /// let err = handle.parse(test_file_path);
+    /// # assert!(err.is_none());
+    /// ```
     ///
     pub fn parse<P: AsRef<Path>>(&self, absolute_path: P) -> Option<ParseError> {
         let absolute_path = absolute_path.as_ref().to_str().expect("Invalid UTF-8 path");
@@ -194,7 +231,7 @@ impl EditorConfigHandle {
     ///
     /// ```
     /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
-    /// // Parse a file or a directory; otherwise `get_rule_count()` returns 0
+    /// // Parse a file or directory; otherwise `get_rule_count()` returns 0
     /// let rule_count = handle.get_rule_count();
     /// # assert_eq!(rule_count, 0);
     /// ```
@@ -204,6 +241,18 @@ impl EditorConfigHandle {
     }
 
     /// Returns a map of all rules found after parsing
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let handle = editorconfig_rs::EditorConfigHandle::new().unwrap();
+    /// let test_file_path = std::fs::canonicalize("tests").unwrap();
+    /// let err = handle.parse(test_file_path);
+    /// # assert!(err.is_none());
+    ///
+    /// let rules = handle.get_rules();
+    /// # assert_eq!(rules.len(), 3);
+    /// ```
     ///
     pub fn get_rules(&self) -> HashMap<String, String> {
         let rule_count = self.get_rule_count();
