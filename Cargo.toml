@@ -12,6 +12,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["editorconfig", "libeditorconfig", "bindings"]
 categories = ["api-bindings"]
+exclude = [".github"]
 
 [dependencies]
 editorconfig-sys = "0.1.1"
