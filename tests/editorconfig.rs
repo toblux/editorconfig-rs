@@ -20,15 +20,15 @@ fn get_version() {
 
 #[test]
 fn set_get_version() {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     for _ in 1..1000 {
         let handle = EditorConfigHandle::new().unwrap();
 
         let version = Version {
-            major: rng.gen_range(0..c_int::MAX),
-            minor: rng.gen_range(0..c_int::MAX),
-            patch: rng.gen_range(0..c_int::MAX),
+            major: rng.random_range(0..c_int::MAX),
+            minor: rng.random_range(0..c_int::MAX),
+            patch: rng.random_range(0..c_int::MAX),
         };
 
         handle.set_version(version);
@@ -116,10 +116,10 @@ fn version_too_new_error() {
 
 #[test]
 fn get_error_message_parse_error() {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     // Any error > 0 is a parsing error at that line
-    let parse_err_line_num = rng.gen_range(1..=c_int::MAX);
+    let parse_err_line_num = rng.random_range(1..=c_int::MAX);
 
     let parse_err = ParseError::LineError(parse_err_line_num);
     let parse_err_msg = editorconfig_rs::get_error_message(parse_err).unwrap();
